@@ -24,19 +24,19 @@ public class FilmController {
 
     @PostMapping
     public Film create(@RequestBody @Valid Film film) {
-        if (!Check.fieldIsNotEmpty(film.getName())){
+        if (!Check.fieldIsNotEmpty(film.getName())) {
             log.info("значение name не должно быть пустым");
             throw new ValidationException("значение name не должно быть пустым");
         }
-        if (!Check.checkMaxLengthField(film.getDescription(), 200L)){
+        if (!Check.checkMaxLengthField(film.getDescription(), 200L)) {
             log.error("описание не должно превышать 200 символов");
             throw new ValidationException("описание не должно превышать 200 символов");
         }
-        if (!Check.checkDateRelease(film.getReleaseDate())){
+        if (!Check.checkDateRelease(film.getReleaseDate())) {
             log.error("дата не может быть реньше чем {}", Check.movieBirthday);
             throw new ValidationException("дата не может быть реньше чем " + Check.movieBirthday);
         }
-        if (Check.checkDuration(film.getDuration())){
+        if (Check.checkDuration(film.getDuration())) {
             log.error("продолжительность не может быть отрицательным числом");
             throw new ValidationException("продолжительность не может быть отрицательным числом");
         }
@@ -52,19 +52,19 @@ public class FilmController {
             log.error("фильма с id [ {} ] не существует", id);
             throw new ValidationException("фильма с id [ " + id + " ] не существует");
         }
-        if (!Check.fieldIsNotEmpty(film.getName())){
+        if (!Check.fieldIsNotEmpty(film.getName())) {
             log.info("значение name не должно быть пустым ");
             throw new ValidationException("значение name не должно быть пустым");
         }
-        if (!Check.checkMaxLengthField(film.getDescription(), 200L)){
+        if (!Check.checkMaxLengthField(film.getDescription(), 200L)) {
             log.error("описание не должно превышать 200 символов ");
             throw new ValidationException("описание не должно превышать 200 символов");
         }
-        if (!Check.checkDateRelease(film.getReleaseDate())){
+        if (!Check.checkDateRelease(film.getReleaseDate())) {
             log.error("дата не может быть реньше  чем {}", Check.movieBirthday);
             throw new ValidationException("дата не может быть реньше чем " + Check.movieBirthday);
         }
-        if (Check.checkDuration(film.getDuration())){
+        if (Check.checkDuration(film.getDuration())) {
             log.error("продолжительность не может быть отрицательным числом ");
             throw new ValidationException("продолжительность не может быть отрицательным числом");
         }
