@@ -24,7 +24,7 @@ public class FilmController {
 
     @PostMapping
     public Film create(@RequestBody @Valid Film film) {
-        if (!Check.fieldIsNotEmpty(film.getName())) {
+       /* if (!Check.fieldIsNotEmpty(film.getName())) {
             log.info("значение name не должно быть пустым");
             throw new ValidationException("значение name не должно быть пустым");
         }
@@ -39,7 +39,7 @@ public class FilmController {
         if (Check.checkDuration(film.getDuration())) {
             log.error("продолжительность не может быть отрицательным числом");
             throw new ValidationException("продолжительность не может быть отрицательным числом");
-        }
+        }*/
         film.setId(getNextId());
         films.put(film.getId(), film);
         log.info("добавлен фильм {}", film);
