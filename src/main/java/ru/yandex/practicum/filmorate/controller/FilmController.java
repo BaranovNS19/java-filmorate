@@ -31,12 +31,12 @@ public class FilmController {
         if (!Check.checkMaxLengthField(film.getDescription(), 200L)) {
             log.error("описание не должно превышать 200 символов");
             throw new ValidationException("описание не должно превышать 200 символов");
-        }
+        }*/
         if (!Check.checkDateRelease(film.getReleaseDate())) {
             log.error("дата не может быть реньше чем {}", Check.movieBirthday);
             throw new ValidationException("дата не может быть реньше чем " + Check.movieBirthday);
         }
-        if (Check.checkDuration(film.getDuration())) {
+        /*if (Check.checkDuration(film.getDuration())) {
             log.error("продолжительность не может быть отрицательным числом");
             throw new ValidationException("продолжительность не может быть отрицательным числом");
         }*/
@@ -46,13 +46,13 @@ public class FilmController {
         return film;
     }
 
-    @PutMapping("{id}")
-    public Film update(@RequestBody @Valid Film film, @PathVariable Long id) {
-        if (!films.containsKey(id)) {
-            log.error("фильма с id [ {} ] не существует", id);
-            throw new ValidationException("фильма с id [ " + id + " ] не существует");
+    @PutMapping
+    public Film update(@RequestBody @Valid Film film) {
+        if (!films.containsKey(film.getId())) {
+            log.error("фильма с id [ {} ] не существует", film.getId());
+            throw new ValidationException("фильма с id [ " + film.getId() + " ] не существует");
         }
-        if (!Check.fieldIsNotEmpty(film.getName())) {
+       /* if (!Check.fieldIsNotEmpty(film.getName())) {
             log.info("значение name не должно быть пустым ");
             throw new ValidationException("значение name не должно быть пустым");
         }
@@ -67,9 +67,9 @@ public class FilmController {
         if (Check.checkDuration(film.getDuration())) {
             log.error("продолжительность не может быть отрицательным числом ");
             throw new ValidationException("продолжительность не может быть отрицательным числом");
-        }
-        film.setId(id);
-        films.put(id, film);
+        }*/
+        //film.setId(id);
+        films.put(film.getId(), film);
         log.info("обновлен фильм {}", film);
         return film;
     }

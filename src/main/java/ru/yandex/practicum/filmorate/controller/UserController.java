@@ -41,25 +41,29 @@ public class UserController {
         return user;
     }
 
-    @PutMapping("{id}")
-    public User update(@RequestBody @Valid User user, @PathVariable Long id) {
-        if (!users.containsKey(id)) {
+    @PutMapping
+    public User update(@RequestBody @Valid User user) {
+       /* if (!users.containsKey(id)) {
             log.error("пользователя с id [ {} ] не существует", id);
             throw new ValidationException("пользователя с id [ " + id + " ] не существует");
         }
         if (!Check.checkLogin(user.getLogin())) {
             log.error("некорректный формат логина ");
             throw new ValidationException("некорректный формат логина");
+        }*/
+        if (!users.containsKey(user.getId())){
+            log.error("пользователя с id [ {} ] не существует", user.getId());
+            throw new ValidationException("пользователя с id [ " + user.getId() + " ] не существует");
         }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        if (!Check.checkOfBirth(user.getBirthday())) {
+       /* if (!Check.checkOfBirth(user.getBirthday())) {
             log.error("некорректно указана дата рождения ");
             throw new ValidationException("некорректно указана дата рождения");
-        }
-        user.setId(id);
-        users.put(id, user);
+        }*/
+       // user.setId(id);
+        users.put(user.getId(), user);
         log.info("данные пользователя {} обновлены", user);
         return user;
     }
