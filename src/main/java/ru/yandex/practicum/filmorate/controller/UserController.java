@@ -23,17 +23,9 @@ public class UserController {
 
     @PostMapping
     public User create(@RequestBody @Valid User user) {
-       /* if (!Check.checkLogin(user.getLogin())) {
-            log.error("некорректный формат логина");
-            throw new ValidationException("некорректный формат логина");
-        }*/
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        /*if (!Check.checkOfBirth(user.getBirthday())) {
-            log.error("некорректно указана дата рождения");
-            throw new ValidationException("некорректно указана дата рождения");
-        }*/
         user.setId(getNextId());
         users.put(user.getId(), user);
         log.info("добавлен пользователь {}", user);
@@ -42,14 +34,6 @@ public class UserController {
 
     @PutMapping
     public User update(@RequestBody @Valid User user) {
-       /* if (!users.containsKey(id)) {
-            log.error("пользователя с id [ {} ] не существует", id);
-            throw new ValidationException("пользователя с id [ " + id + " ] не существует");
-        }
-        if (!Check.checkLogin(user.getLogin())) {
-            log.error("некорректный формат логина ");
-            throw new ValidationException("некорректный формат логина");
-        }*/
         if (!users.containsKey(user.getId())) {
             log.error("пользователя с id [ {} ] не существует", user.getId());
             throw new ValidationException("пользователя с id [ " + user.getId() + " ] не существует");
@@ -57,11 +41,6 @@ public class UserController {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-       /* if (!Check.checkOfBirth(user.getBirthday())) {
-            log.error("некорректно указана дата рождения ");
-            throw new ValidationException("некорректно указана дата рождения");
-        }*/
-        // user.setId(id);
         users.put(user.getId(), user);
         log.info("данные пользователя {} обновлены", user);
         return user;

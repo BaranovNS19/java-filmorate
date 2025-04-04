@@ -1,143 +1,178 @@
 package ru.yandex.practicum.filmorate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.javafaker.Faker;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.Check;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Random;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class FilmControllerTest {
-    private FilmController filmController;
     private Faker faker;
     private Random random;
+    private HttpClient httpClient;
+    private ObjectMapper objectMapper;
+    private String baseUrl;
+    private FilmController filmController;
+
+    @LocalServerPort
+    private int port;
 
     @BeforeEach
     public void setUp() {
-        filmController = new FilmController();
         faker = new Faker();
         random = new Random();
+        httpClient = HttpClient.newHttpClient();
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        baseUrl = "http://localhost:" + port + "/films";
+        filmController = new FilmController();
     }
 
     @Test
-    public void create() {
+    public void create() throws IOException, InterruptedException {
         Film film = Film.builder()
                 .name(faker.book().title())
                 .description(faker.book().title())
-                .releaseDate(Check.movieBirthday.plusDays(1))
+                .releaseDate(FilmController.movieBirthday.plusDays(1))
                 .duration(random.nextLong(1000) + 1)
                 .build();
-        Assertions.assertTrue(filmController.findAll().isEmpty());
-        Film filmCrete = filmController.create(film);
-        Assertions.assertTrue(filmController.findAll().contains(filmCrete));
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(film)))
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Assertions.assertEquals(200, response.statusCode());
     }
 
-    /*@Test
-    public void createInvalidName() {
+    @Test
+    public void createInvalidName() throws IOException, InterruptedException {
         Film film = Film.builder()
                 .name(null)
                 .description(faker.book().title())
-                .releaseDate(Check.movieBirthday)
+                .releaseDate(FilmController.movieBirthday)
                 .duration(random.nextLong(1000) + 1)
                 .build();
-        Assertions.assertTrue(filmController.findAll().isEmpty());
-        ValidationException validationException = Assertions.assertThrows(ValidationException.class,
-                () -> filmController.create(film));
-        Assertions.assertEquals("значение name не должно быть пустым", validationException.getMessage());
-        Assertions.assertTrue(filmController.findAll().isEmpty());
-        film.setName(" ");
-        validationException = Assertions.assertThrows(ValidationException.class,
-                () -> filmController.create(film));
-        Assertions.assertEquals("значение name не должно быть пустым", validationException.getMessage());
-        Assertions.assertTrue(filmController.findAll().isEmpty());
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(film)))
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Assertions.assertEquals(400, response.statusCode());
     }
 
     @Test
-    public void createInvalidDescription() {
+    public void createInvalidDescription() throws IOException, InterruptedException {
         Film film = Film.builder()
                 .name(faker.book().title())
                 .description(RandomStringUtils.random(201))
-                .releaseDate(Check.movieBirthday.plusDays(1))
+                .releaseDate(FilmController.movieBirthday.plusDays(1))
                 .duration(random.nextLong(1000) + 1)
                 .build();
-        Assertions.assertTrue(filmController.findAll().isEmpty());
-        ValidationException validationException = Assertions.assertThrows(ValidationException.class,
-                () -> filmController.create(film));
-        Assertions.assertEquals("описание не должно превышать 200 символов", validationException.getMessage());
-        Assertions.assertTrue(filmController.findAll().isEmpty());
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(film)))
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Assertions.assertEquals(400, response.statusCode());
     }
 
     @Test
-    public void createInvalidDuration() {
+    public void createInvalidDuration() throws IOException, InterruptedException {
         Film film = Film.builder()
                 .name(faker.book().title())
                 .description(faker.book().title())
-                .releaseDate(Check.movieBirthday.plusDays(1))
+                .releaseDate(FilmController.movieBirthday.plusDays(1))
                 .duration(-1L)
                 .build();
-        Assertions.assertTrue(filmController.findAll().isEmpty());
-        ValidationException validationException = Assertions.assertThrows(ValidationException.class,
-                () -> filmController.create(film));
-        Assertions.assertEquals("продолжительность не может быть отрицательным числом", validationException.getMessage());
-        Assertions.assertTrue(filmController.findAll().isEmpty());
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(film)))
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Assertions.assertEquals(400, response.statusCode());
     }
 
     @Test
-    public void createInvalidReleaseDate() {
+    public void createInvalidReleaseDate() throws IOException, InterruptedException {
         Film film = Film.builder()
                 .name(faker.book().title())
                 .description(faker.book().title())
-                .releaseDate(Check.movieBirthday.minusDays(1))
+                .releaseDate(FilmController.movieBirthday.minusDays(1))
                 .duration(random.nextLong(1000) + 1)
                 .build();
-        Assertions.assertTrue(filmController.findAll().isEmpty());
-        ValidationException validationException = Assertions.assertThrows(ValidationException.class,
-                () -> filmController.create(film));
-        Assertions.assertEquals("дата не может быть реньше чем 1895-12-28", validationException.getMessage());
-        Assertions.assertTrue(filmController.findAll().isEmpty());
-    }*/
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(film)))
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Assertions.assertEquals(500, response.statusCode());
+    }
 
-    /* @Test
-    public void update() {
+    @Test
+    public void update() throws IOException, InterruptedException {
         Film film = Film.builder()
                 .name(faker.book().title())
                 .description(faker.book().title())
-                .releaseDate(Check.movieBirthday.plusDays(1))
+                .releaseDate(FilmController.movieBirthday.plusDays(1))
                 .duration(random.nextLong(1000) + 1)
                 .build();
         Film updateFilm = Film.builder()
+                .id(1)
                 .name(faker.book().title())
                 .description(faker.book().title())
-                .releaseDate(Check.movieBirthday.plusDays(2))
+                .releaseDate(FilmController.movieBirthday.plusDays(2))
                 .duration(random.nextLong(1000) + 1)
                 .build();
         Assertions.assertTrue(filmController.findAll().isEmpty());
-        Film filmCrete = filmController.create(film);
-        Assertions.assertTrue(filmController.findAll().contains(filmCrete));
-        Film filmUpdate = filmController.update(updateFilm);
-        Assertions.assertEquals(1, filmController.findAll().size());
-        Assertions.assertTrue(filmController.findAll().contains(filmUpdate));
-        Assertions.assertFalse(filmController.findAll().contains(film));
+        HttpRequest requestPost = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(film)))
+                .build();
+        httpClient.send(requestPost, HttpResponse.BodyHandlers.ofString());
+        HttpRequest requestPut = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(updateFilm)))
+                .build();
+        HttpResponse<String> response = httpClient.send(requestPut, HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+        Assertions.assertEquals(200, response.statusCode());
     }
 
     @Test
-    public void updateInvalidId() {
+    public void updateInvalidId() throws IOException, InterruptedException {
         Film film = Film.builder()
                 .name(faker.book().title())
                 .description(faker.book().title())
-                .releaseDate(Check.movieBirthday.plusDays(1))
+                .releaseDate(FilmController.movieBirthday.plusDays(1))
                 .duration(random.nextLong(1000) + 1)
                 .build();
-        Assertions.assertTrue(filmController.findAll().isEmpty());
-        long randomId = random.nextLong(100);
-        ValidationException validationException = Assertions.assertThrows(ValidationException.class,
-                () -> filmController.update(film));
-        Assertions.assertEquals("фильма с id [ " + randomId + " ] не существует", validationException.getMessage());
-        Assertions.assertTrue(filmController.findAll().isEmpty());
-    }*/
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(film)))
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Assertions.assertEquals(500, response.statusCode());
+    }
 }
