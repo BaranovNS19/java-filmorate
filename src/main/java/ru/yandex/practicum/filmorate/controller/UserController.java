@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.Check;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,7 +50,7 @@ public class UserController {
             log.error("некорректный формат логина ");
             throw new ValidationException("некорректный формат логина");
         }*/
-        if (!users.containsKey(user.getId())){
+        if (!users.containsKey(user.getId())) {
             log.error("пользователя с id [ {} ] не существует", user.getId());
             throw new ValidationException("пользователя с id [ " + user.getId() + " ] не существует");
         }
@@ -62,7 +61,7 @@ public class UserController {
             log.error("некорректно указана дата рождения ");
             throw new ValidationException("некорректно указана дата рождения");
         }*/
-       // user.setId(id);
+        // user.setId(id);
         users.put(user.getId(), user);
         log.info("данные пользователя {} обновлены", user);
         return user;
