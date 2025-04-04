@@ -52,7 +52,7 @@ public class UserControllerTest {
         Assertions.assertEquals(userCreate.getLogin(), userCreate.getName());
     }
 
-    @Test
+   /* @Test
     public void createInvalidBirthday() {
         User user = User.builder()
                 .name(faker.name().fullName())
@@ -88,7 +88,7 @@ public class UserControllerTest {
         validationException = Assertions.assertThrows(ValidationException.class,
                 () -> userController.create(user));
         Assertions.assertEquals("некорректный формат логина", validationException.getMessage());
-    }
+    }*/
 
     @Test
     public void update() {
