@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.io.IOException;
 import java.net.URI;
@@ -20,13 +21,13 @@ import java.net.http.HttpResponse;
 import java.util.Random;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class FilmControllerTest {
+public class InMemoryFilmStorageTest {
     private Faker faker;
     private Random random;
     private HttpClient httpClient;
     private ObjectMapper objectMapper;
     private String baseUrl;
-    private FilmController filmController;
+    private InMemoryFilmStorage inMemoryFilmStorage;
 
     @LocalServerPort
     private int port;
@@ -39,7 +40,7 @@ public class FilmControllerTest {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         baseUrl = "http://localhost:" + port + "/films";
-        filmController = new FilmController();
+        inMemoryFilmStorage = new InMemoryFilmStorage();
     }
 
     @Test
@@ -47,7 +48,7 @@ public class FilmControllerTest {
         Film film = Film.builder()
                 .name(faker.book().title())
                 .description(faker.book().title())
-                .releaseDate(FilmController.movieBirthday.plusDays(1))
+                .releaseDate(InMemoryFilmStorage.movieBirthday.plusDays(1))
                 .duration(random.nextLong(1000) + 1)
                 .build();
         HttpRequest request = HttpRequest.newBuilder()
@@ -64,7 +65,7 @@ public class FilmControllerTest {
         Film film = Film.builder()
                 .name(null)
                 .description(faker.book().title())
-                .releaseDate(FilmController.movieBirthday)
+                .releaseDate(InMemoryFilmStorage.movieBirthday)
                 .duration(random.nextLong(1000) + 1)
                 .build();
         HttpRequest request = HttpRequest.newBuilder()
@@ -81,7 +82,7 @@ public class FilmControllerTest {
         Film film = Film.builder()
                 .name(faker.book().title())
                 .description(RandomStringUtils.random(201))
-                .releaseDate(FilmController.movieBirthday.plusDays(1))
+                .releaseDate(InMemoryFilmStorage.movieBirthday.plusDays(1))
                 .duration(random.nextLong(1000) + 1)
                 .build();
         HttpRequest request = HttpRequest.newBuilder()
@@ -98,7 +99,7 @@ public class FilmControllerTest {
         Film film = Film.builder()
                 .name(faker.book().title())
                 .description(faker.book().title())
-                .releaseDate(FilmController.movieBirthday.plusDays(1))
+                .releaseDate(InMemoryFilmStorage.movieBirthday.plusDays(1))
                 .duration(-1L)
                 .build();
         HttpRequest request = HttpRequest.newBuilder()
@@ -115,7 +116,7 @@ public class FilmControllerTest {
         Film film = Film.builder()
                 .name(faker.book().title())
                 .description(faker.book().title())
-                .releaseDate(FilmController.movieBirthday.minusDays(1))
+                .releaseDate(InMemoryFilmStorage.movieBirthday.minusDays(1))
                 .duration(random.nextLong(1000) + 1)
                 .build();
         HttpRequest request = HttpRequest.newBuilder()
@@ -124,7 +125,7 @@ public class FilmControllerTest {
                 .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(film)))
                 .build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Assertions.assertEquals(500, response.statusCode());
+        Assertions.assertEquals(400, response.statusCode());
     }
 
     @Test
@@ -132,17 +133,17 @@ public class FilmControllerTest {
         Film film = Film.builder()
                 .name(faker.book().title())
                 .description(faker.book().title())
-                .releaseDate(FilmController.movieBirthday.plusDays(1))
+                .releaseDate(InMemoryFilmStorage.movieBirthday.plusDays(1))
                 .duration(random.nextLong(1000) + 1)
                 .build();
         Film updateFilm = Film.builder()
                 .id(1)
                 .name(faker.book().title())
                 .description(faker.book().title())
-                .releaseDate(FilmController.movieBirthday.plusDays(2))
+                .releaseDate(InMemoryFilmStorage.movieBirthday.plusDays(2))
                 .duration(random.nextLong(1000) + 1)
                 .build();
-        Assertions.assertTrue(filmController.findAll().isEmpty());
+        Assertions.assertTrue(inMemoryFilmStorage.findAll().isEmpty());
         HttpRequest requestPost = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl))
                 .header("Content-Type", "application/json")
@@ -164,7 +165,7 @@ public class FilmControllerTest {
         Film film = Film.builder()
                 .name(faker.book().title())
                 .description(faker.book().title())
-                .releaseDate(FilmController.movieBirthday.plusDays(1))
+                .releaseDate(InMemoryFilmStorage.movieBirthday.plusDays(1))
                 .duration(random.nextLong(1000) + 1)
                 .build();
         HttpRequest request = HttpRequest.newBuilder()
@@ -173,6 +174,6 @@ public class FilmControllerTest {
                 .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(film)))
                 .build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Assertions.assertEquals(500, response.statusCode());
+        Assertions.assertEquals(404, response.statusCode());
     }
 }

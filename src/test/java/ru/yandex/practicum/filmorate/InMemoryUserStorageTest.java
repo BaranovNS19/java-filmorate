@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,8 +20,8 @@ import java.net.http.HttpResponse;
 import java.time.LocalDate;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class UserControllerTest {
-    private UserController userController;
+public class InMemoryUserStorageTest {
+    private InMemoryUserStorage inMemoryUserStorage;
     private Faker faker;
     private HttpClient httpClient;
     private ObjectMapper objectMapper;
@@ -31,7 +32,7 @@ public class UserControllerTest {
 
     @BeforeEach
     public void setUp() {
-        userController = new UserController();
+        inMemoryUserStorage = new InMemoryUserStorage();
         faker = new Faker();
         httpClient = HttpClient.newHttpClient();
         objectMapper = new ObjectMapper();
@@ -100,7 +101,7 @@ public class UserControllerTest {
                 .email(faker.internet().emailAddress())
                 .birthday(LocalDate.now().minusDays(1))
                 .build();
-        Assertions.assertTrue(userController.findAll().isEmpty());
+        Assertions.assertTrue(inMemoryUserStorage.findAll().isEmpty());
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl))
                 .header("Content-Type", "application/json")
@@ -156,7 +157,7 @@ public class UserControllerTest {
                 .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(user)))
                 .build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        Assertions.assertEquals(500, response.statusCode());
+        Assertions.assertEquals(404, response.statusCode());
 
     }
 }
