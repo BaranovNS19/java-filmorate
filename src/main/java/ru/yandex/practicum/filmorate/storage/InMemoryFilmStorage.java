@@ -10,9 +10,9 @@ import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 @Slf4j
 @Component
@@ -34,7 +34,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new ValidationException("дата не может быть реньше чем " + movieBirthday);
         }
         film.setId(getNextId());
-        film.setLikes(new ArrayList<>());
+        film.setLikes(new HashSet<>());
         films.put(film.getId(), film);
         log.info("добавлен фильм {}", film);
         return film;
@@ -50,7 +50,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.error("дата не может быть реньше чем {}", movieBirthday);
             throw new ValidationException("дата не может быть реньше чем " + movieBirthday);
         }
-        film.setLikes(new ArrayList<>());
+        film.setLikes(getFilmById(film.getId()).getLikes());
         films.put(film.getId(), film);
         log.info("обновлен фильм {}", film);
         return film;

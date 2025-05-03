@@ -10,10 +10,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,17 +28,14 @@ public class FilmService {
     public Film like(long id, long userId) {
         User user = inMemoryUserStorage.getUserById(userId);
         Film film = inMemoryFilmStorage.getFilmById(id);
-        List<Like> likes = film.getLikes();
-        for (Like l : likes) {
-            if (l.getUser().getId() == user.getId()) {
-                throw new AddException("Пользователь с id [" + userId + "] уже ставил лайк");
-            }
+        Set<Like> likes = film.getLikes();
+        if (!likes.add(new Like(user))) {
+            throw new AddException("Пользователь с id [" + userId + "] уже ставил лайк");
         }
-        likes.add(new Like(user));
         return film;
     }
 
-    public List<Like> getCountLikesByFilm(Long id) {
+    public Set<Like> getCountLikesByFilm(Long id) {
         return inMemoryFilmStorage.getFilmById(id).getLikes();
     }
 
@@ -49,7 +43,7 @@ public class FilmService {
         Film film = inMemoryFilmStorage.getFilmById(id);
         User user = inMemoryUserStorage.getUserById(userId);
         if (user != null) {
-            List<Like> likes = film.getLikes();
+            Set<Like> likes = film.getLikes();
             Optional<Like> likeToRemove = likes.stream()
                     .filter(like -> like.getUser().getId() == userId)
                     .findFirst();

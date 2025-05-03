@@ -7,9 +7,9 @@ import ru.yandex.practicum.filmorate.exeption.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 @Slf4j
 @Component
@@ -28,7 +28,7 @@ public class InMemoryUserStorage implements UserStorage {
             user.setName(user.getLogin());
         }
         user.setId(getNextId());
-        user.setFriends(new ArrayList<>());
+        user.setFriends(new HashSet<>());
         users.put(user.getId(), user);
         log.info("добавлен пользователь {}", user);
         return user;
@@ -43,7 +43,7 @@ public class InMemoryUserStorage implements UserStorage {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        user.setFriends(new ArrayList<>());
+        user.setFriends(getUserById(user.getId()).getFriends());
         users.put(user.getId(), user);
         log.info("данные пользователя {} обновлены", user);
         return user;

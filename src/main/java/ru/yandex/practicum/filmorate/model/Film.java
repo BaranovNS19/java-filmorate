@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Film.
@@ -23,5 +23,5 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "продолжительность не может быть отрицательным числом")
     private Long duration;
-    private List<Like> likes;
+    private Set<Like> likes;
 }
