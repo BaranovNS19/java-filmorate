@@ -4,46 +4,45 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.request.CreateUserRequest;
 import ru.yandex.practicum.filmorate.model.Friend;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private final InMemoryUserStorage inMemoryUserStorage;
     private final UserService userService;
 
+
     @Autowired
-    public UserController(InMemoryUserStorage inMemoryUserStorage, UserService userService) {
-        this.inMemoryUserStorage = inMemoryUserStorage;
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @GetMapping
     public Collection<User> findAll() {
-        return inMemoryUserStorage.findAll();
+        return userService.findAll();
     }
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable long id) {
-        return inMemoryUserStorage.getUserById(id);
+        return userService.getUserById(id);
     }
 
     @PostMapping
-    public User create(@RequestBody @Valid User user) {
-        return inMemoryUserStorage.create(user);
+    public User create(@RequestBody @Valid CreateUserRequest createUserRequest) {
+        return userService.creteUser(createUserRequest);
     }
 
     @PutMapping
     public User update(@RequestBody @Valid User user) {
-        return inMemoryUserStorage.update(user);
+        return userService.update(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -52,7 +51,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public Set<Friend> getFriendsByUser(@PathVariable long id) {
+    public Collection<Friend> getFriendsByUser(@PathVariable long id) {
         return userService.getFriendsByUser(id);
     }
 
@@ -62,7 +61,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Set<Friend> getCommonFriendsByUser(@PathVariable long id, @PathVariable long otherId) {
+    public List<Friend> getCommonFriendsByUser(@PathVariable long id, @PathVariable long otherId) {
         return userService.getCommonFriendsByUser(id, otherId);
+    }
+
+    @PutMapping("/friendship/{id}/confirm/{friendId}")
+    public User confirmFriendship(@PathVariable long id, @PathVariable long friendId) {
+        return userService.confirmFriendship(id, friendId);
     }
 }

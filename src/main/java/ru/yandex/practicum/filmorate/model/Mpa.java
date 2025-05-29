@@ -4,11 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class Friend {
-    private long id;
-    private boolean confirmationOfFriendship;
-    private long idRequester;
+@AllArgsConstructor
+public class Mpa implements Serializable {
+    private Long id;
+    private String name;
 }

@@ -9,8 +9,8 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 
+@Deprecated
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
@@ -28,7 +28,7 @@ public class InMemoryUserStorage implements UserStorage {
             user.setName(user.getLogin());
         }
         user.setId(getNextId());
-        user.setFriends(new HashSet<>());
+        // user.setFriends(new HashSet<>());
         users.put(user.getId(), user);
         log.info("добавлен пользователь {}", user);
         return user;
@@ -47,6 +47,11 @@ public class InMemoryUserStorage implements UserStorage {
         users.put(user.getId(), user);
         log.info("данные пользователя {} обновлены", user);
         return user;
+    }
+
+    @Override
+    public User getUserById(long id) {
+        return users.get(id);
     }
 
     public User getUserById(Long id) {

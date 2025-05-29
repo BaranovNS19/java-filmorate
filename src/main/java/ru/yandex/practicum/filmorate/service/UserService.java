@@ -1,47 +1,115 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.request.CreateUserRequest;
 import ru.yandex.practicum.filmorate.exeption.AddException;
+import ru.yandex.practicum.filmorate.exeption.ConfirmException;
+import ru.yandex.practicum.filmorate.exeption.IncorrectParameterException;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.Friend;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.FriendsDbStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.List;
 
 @Service
 public class UserService {
 
     @Autowired
-    private InMemoryUserStorage inMemoryUserStorage;
+    @Qualifier("userDbStorage")
+    private UserStorage userStorage;
+    @Autowired
+    private FriendsDbStorage friendsDbStorage;
 
-    public User addFriend(Long id, Long friendId) {
-        User user = inMemoryUserStorage.getUserById(id);
-        User friend = inMemoryUserStorage.getUserById(friendId);
-        Set<Friend> userFriends = user.getFriends();
-        if (!userFriends.add(new Friend(friendId))) {
-            throw new AddException("пользователь [" + friendId + "] уже есть в друзьях");
+    public User getUserById(Long id) {
+        User user = userStorage.getUserById(id);
+        if (user == null) {
+            throw new IncorrectParameterException("Пользователь с id " + id + " не найден");
         }
-        friend.getFriends().add(new Friend(id));
         return user;
     }
 
-    public Set<Friend> getFriendsByUser(Long id) {
-        return inMemoryUserStorage.getUserById(id).getFriends();
+    public User creteUser(@Valid CreateUserRequest createUserRequest) {
+        return userStorage.create(UserMapper.mapToUser(createUserRequest));
+    }
+
+    public User update(@Valid User user) {
+        getUserById(user.getId());
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+        return userStorage.update(user);
+    }
+
+    public User addFriend(Long id, Long friendId) {
+        if (id == friendId) {
+            throw new AddException("добавление в друзья невозможно");
+        }
+        User user = userStorage.getUserById(id);
+        User friend = userStorage.getUserById(friendId);
+
+        if (user == null || friend == null) {
+            throw new IncorrectParameterException("Пользователь с id " + id + " не найден");
+        }
+
+        if (friendsDbStorage.getFriendById(id, friendId) != null) {
+            throw new AddException("пользователь [" + friendId + "] уже есть в друзьях");
+        }
+        friendsDbStorage.addFriend(id, friendId);
+
+        return userStorage.getUserById(id);
+    }
+
+    public Collection<Friend> getFriendsByUser(Long id) {
+        if (userStorage.getUserById(id) == null) {
+            throw new IncorrectParameterException("Пользователь с id " + id + " не найден");
+        }
+        return friendsDbStorage.getFriendsByUser(id);
+    }
+
+    public Collection<User> findAll() {
+        return userStorage.findAll();
     }
 
     public User deleteFriend(Long id, Long friendId) {
-        Set<Friend> firstUserFriends = inMemoryUserStorage.getUserById(id).getFriends();
-        firstUserFriends.removeIf(f -> f.getId() == friendId);
-        Set<Friend> secondUserFriend = inMemoryUserStorage.getUserById(friendId).getFriends();
-        secondUserFriend.removeIf(f -> f.getId() == id);
-        return inMemoryUserStorage.getUserById(id);
+        if (getUserById(id) == null || getUserById(friendId) == null) {
+            throw new IncorrectParameterException("Пользователь с id " + id + " не найден");
+        }
+        friendsDbStorage.deleteFriend(id, friendId);
+        return getUserById(id);
     }
 
-    public Set<Friend> getCommonFriendsByUser(Long id, Long otherId) {
-        Set<Friend> firstUserFriends = inMemoryUserStorage.getUserById(id).getFriends();
-        Set<Friend> secondUserFriends = inMemoryUserStorage.getUserById(otherId).getFriends();
-        return firstUserFriends.stream().filter(secondUserFriends::contains).collect(Collectors.toSet());
+    public List<Friend> getCommonFriendsByUser(Long id, Long otherId) {
+        User user = userStorage.getUserById(id);
+        User friend = userStorage.getUserById(otherId);
+        if (user == null || friend == null) {
+            throw new IncorrectParameterException("Пользователь с id " + id + " не найден");
+        }
+        return friendsDbStorage.getCommonFriendsByUser(id, otherId);
+    }
+
+    public User confirmFriendship(Long id, Long friendId) {
+        if (id == friendId) {
+            throw new ConfirmException("невозможно выполнить операцию");
+        }
+        userStorage.getUserById(id);
+        Friend friend = friendsDbStorage.getFriendById(id, friendId);
+        if (friend == null) {
+            throw new ConfirmException("пользователь [" + friendId + "] не совершал запрос на дружбу");
+        }
+        if (friend.getIdRequester() == id) {
+            throw new ConfirmException("пользователь [" + id + "] является инициатором запроса и не имеет " +
+                    "возможности подтвердить дружбу");
+        }
+        if (friend.isConfirmationOfFriendship()) {
+            throw new ConfirmException("пользователь [" + id + "] уже подтвердил дружбу ");
+        }
+        friendsDbStorage.confirmFriendShip(id, friendId);
+        return userStorage.getUserById(id);
     }
 }

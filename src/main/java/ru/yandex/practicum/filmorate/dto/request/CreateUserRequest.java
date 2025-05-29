@@ -1,23 +1,15 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class User {
-    private long id;
+public class CreateUserRequest {
     @NotEmpty
     @Email
     private String email;
@@ -27,5 +19,4 @@ public class User {
     private String name;
     @PastOrPresent
     private LocalDate birthday;
-    private List<Friend> friends;
 }
