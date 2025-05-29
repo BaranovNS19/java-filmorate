@@ -11,7 +11,6 @@ import java.util.List;
 public class FriendsDbStorage extends BaseRepository<Friend> {
     private static final String FIND_FRIENDS_BY_USER_QUERY = "SELECT * FROM friends WHERE(user_id = ? AND confirmation_of_friendship = true)" +
             " OR (user_id = ? AND id_requester = ? AND confirmation_of_friendship = false)";
-    ;
     private static final String FIND_FRIEND_BY_ID_QUERY = "SELECT * FROM friends WHERE user_id = ? AND friend_id = ?";
     private static final String UPDATE_CONFIRMATION_FRIENDSHIP = "UPDATE friends SET confirmation_of_friendship = true " +
             "WHERE user_id = ? AND friend_id = ?;";
