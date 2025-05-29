@@ -26,12 +26,12 @@ import java.util.List;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Import({FilmDbStorage.class, FilmRowMapper.class, MpaDbStorage.class, MpaRowMappers.class, GenreDbStorage.class,
-GenreRowMapper.class})
+        GenreRowMapper.class})
 public class FilmStorageTest {
     private final FilmDbStorage filmDbStorage;
 
     @Test
-    public void testFindFilmById(){
+    public void testFindFilmById() {
         Faker faker = new Faker();
         Film film = Film.builder()
                 .name(String.valueOf(faker.name()))
@@ -50,7 +50,7 @@ public class FilmStorageTest {
     }
 
     @Test
-    public void testCreteFilm(){
+    public void testCreteFilm() {
         Faker faker = new Faker();
         Film film = Film.builder()
                 .name(String.valueOf(faker.name()))
@@ -65,7 +65,7 @@ public class FilmStorageTest {
     }
 
     @Test
-    public void testUpdateFilm(){
+    public void testUpdateFilm() {
         Faker faker = new Faker();
         Film film = Film.builder()
                 .name(String.valueOf(faker.name()))
