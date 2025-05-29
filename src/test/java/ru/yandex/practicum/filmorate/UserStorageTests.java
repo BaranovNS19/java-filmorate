@@ -43,7 +43,7 @@ class UserStorageTests {
     }
 
     @Test
-    public void testUserCrete(){
+    public void testUserCrete() {
         Faker faker = new Faker();
         User user = User.builder()
                 .email(faker.internet().emailAddress())
@@ -56,7 +56,7 @@ class UserStorageTests {
     }
 
     @Test
-    public void testUserUpdate(){
+    public void testUserUpdate() {
         Faker faker = new Faker();
         User user = User.builder()
                 .email(faker.internet().emailAddress())
