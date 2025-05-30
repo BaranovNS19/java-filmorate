@@ -97,9 +97,9 @@ public class UserService {
         if (id == friendId) {
             throw new ConfirmException("невозможно выполнить операцию");
         }
-        userStorage.getUserById(id);
+        User user = userStorage.getUserById(id);
         Friend friend = friendsDbStorage.getFriendById(id, friendId);
-        if (friend == null) {
+        if (friend == null || user == null) {
             throw new ConfirmException("пользователь [" + friendId + "] не совершал запрос на дружбу");
         }
         if (friend.getIdRequester() == id) {

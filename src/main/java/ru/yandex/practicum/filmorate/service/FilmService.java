@@ -26,6 +26,8 @@ public class FilmService {
     private GenreDbStorage genreDbStorage;
     @Autowired
     private MpaDbStorage raitingDbStorage;
+    @Autowired
+    private LikesDbStorage likesDbStorage;
 
     public static final LocalDate movieBirthday = LocalDate.of(1895, 12, 28);
 
@@ -56,7 +58,7 @@ public class FilmService {
 
     public Film update(Film film) {
         if (filmStorage.getFilmById(film.getId()) == null) {
-            throw new NotFoundException("пользователь с id [" + film.getId() + "] не найден");
+            throw new NotFoundException("фильм с id [" + film.getId() + "] не найден");
         }
         List<Genre> genresId = film.getGenres();
         if (genresId != null && !genresId.isEmpty()) {
@@ -94,10 +96,11 @@ public class FilmService {
     }
 
     public Film getFilmById(long id) {
-        if (filmStorage.getFilmById(id) == null) {
+        Film film = filmStorage.getFilmById(id);
+        if (film == null) {
             throw new IncorrectParameterException("фильм с id " + id + " не найден");
         }
-        return filmStorage.getFilmById(id);
+        return film;
     }
 
     public Film like(long id, long userId) {
@@ -110,11 +113,12 @@ public class FilmService {
             throw new IncorrectParameterException("фильм с id " + id + " не найден");
         }
 
-        List<Long> likes = filmStorage.getLikesByFilm(id);
+        List<Long> likes = likesDbStorage.getLikesByFilm(id);
         if (likes.contains(userId)) {
             throw new AddException("Пользователь с id [" + userId + "] уже ставил лайк");
         }
-        return filmStorage.addLike(id, userId);
+        likesDbStorage.addLike(id, userId);
+        return filmStorage.getFilmById(id);
     }
 
     public Film removeLikeByFilm(long id, long userId) {
@@ -127,11 +131,11 @@ public class FilmService {
             throw new IncorrectParameterException("фильм с id " + id + " не найден");
         }
 
-        List<Long> likes = filmStorage.getLikesByFilm(id);
+        List<Long> likes = likesDbStorage.getLikesByFilm(id);
         if (!likes.contains(userId)) {
             throw new DeleteException("отсутствует лайк пользователя [" + userId + "]");
         }
-        filmStorage.deleteLikeByFilm(id, userId);
+        likesDbStorage.deleteLikeByFilm(id, userId);
         return filmStorage.getFilmById(id);
     }
 
@@ -152,6 +156,6 @@ public class FilmService {
         if (raiting == null) {
             throw new NotFoundException("рейтинг с [" + id + "] не найден");
         }
-        return raitingDbStorage.getRaitingById(id);
+        return raiting;
     }
 }

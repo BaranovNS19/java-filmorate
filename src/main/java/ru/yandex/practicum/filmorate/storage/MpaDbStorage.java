@@ -11,6 +11,7 @@ import java.util.Collection;
 public class MpaDbStorage extends BaseRepository<Mpa> {
     private static final String FIND_ALL_RAITINGS = "SELECT * FROM raiting;";
     private static final String FIND_RAITING_BY_ID = "SELECT * FROM raiting WHERE id = ?;";
+    private static final String FIND_RAITING_BY_FILM_QUERY = "SELECT raiting_id FROM movie_raiting WHERE film_id = ?";
 
     public MpaDbStorage(JdbcTemplate jdbc, RowMapper<Mpa> mapper) {
         super(jdbc, mapper);
@@ -22,5 +23,13 @@ public class MpaDbStorage extends BaseRepository<Mpa> {
 
     public Mpa getRaitingById(long id) {
         return findOne(FIND_RAITING_BY_ID, id);
+    }
+
+    public Mpa getMpaByFilm(long id) {
+        Long raitingId = jdbc.queryForObject(FIND_RAITING_BY_FILM_QUERY, Long.class, id);
+        if (raitingId != null) {
+            return getRaitingById(raitingId);
+        }
+        return new Mpa(null, null);
     }
 }

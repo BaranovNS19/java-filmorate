@@ -11,12 +11,8 @@ import org.springframework.context.annotation.Import;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
-import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
-import ru.yandex.practicum.filmorate.storage.mappers.FilmRowMapper;
-import ru.yandex.practicum.filmorate.storage.mappers.GenreRowMapper;
-import ru.yandex.practicum.filmorate.storage.mappers.MpaRowMappers;
+import ru.yandex.practicum.filmorate.storage.*;
+import ru.yandex.practicum.filmorate.storage.mappers.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -26,7 +22,8 @@ import java.util.List;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Import({FilmDbStorage.class, FilmRowMapper.class, MpaDbStorage.class, MpaRowMappers.class, GenreDbStorage.class,
-        GenreRowMapper.class})
+        GenreRowMapper.class, LikesDbStorage.class, LikeRowMapper.class, UserDbStorage.class, UserRowMapper.class,
+        FriendsDbStorage.class, FriendRowMapper.class})
 public class FilmStorageTest {
     private final FilmDbStorage filmDbStorage;
 

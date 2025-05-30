@@ -63,21 +63,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film addLike(long filmId, long userId) {
-        return null;
-    }
-
-    @Override
-    public List<Long> getLikesByFilm(long id) {
-        return List.of();
-    }
-
-    @Override
-    public boolean deleteLikeByFilm(long filmId, long userId) {
-        return false;
-    }
-
-    @Override
     public Collection<Long> getPopularFilms(long count) {
         return List.of();
     }

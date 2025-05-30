@@ -1,13 +1,13 @@
 package ru.yandex.practicum.filmorate.storage.mappers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Like;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.LikesDbStorage;
+import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.sql.ResultSet;
@@ -17,13 +17,17 @@ import java.util.List;
 
 @Component
 public class FilmRowMapper implements RowMapper<Film> {
-    private final FilmDbStorage filmDbStorage;
+    private final LikesDbStorage likesDbStorage;
+    private final MpaDbStorage mpaDbStorage;
+    private final GenreDbStorage genreDbStorage;
     private final UserDbStorage userDbStorage;
 
-    @Lazy
     @Autowired
-    public FilmRowMapper(FilmDbStorage filmDbStorage, UserDbStorage userDbStorage) {
-        this.filmDbStorage = filmDbStorage;
+    public FilmRowMapper(LikesDbStorage likesDbStorage, MpaDbStorage mpaDbStorage, GenreDbStorage genreDbStorage,
+                         UserDbStorage userDbStorage) {
+        this.likesDbStorage = likesDbStorage;
+        this.mpaDbStorage = mpaDbStorage;
+        this.genreDbStorage = genreDbStorage;
         this.userDbStorage = userDbStorage;
     }
 
@@ -35,16 +39,14 @@ public class FilmRowMapper implements RowMapper<Film> {
         film.setDescription(resultSet.getString("description"));
         film.setReleaseDate(resultSet.getDate("releaseDate").toLocalDate());
         film.setDuration(resultSet.getLong("duration"));
-        film.setGenres(filmDbStorage.getGenresByFilm(resultSet.getLong("id")));
-        film.setMpa(filmDbStorage.getRaitingByFilm(resultSet.getLong("id")));
-        Mpa mpa = filmDbStorage.getRaitingByFilm(resultSet.getLong("id"));
-        film.setMpa(mpa);
-
+        film.setGenres(genreDbStorage.getGenresByFilm(resultSet.getLong("id")));
+        film.setMpa(mpaDbStorage.getMpaByFilm(resultSet.getLong("id")));
         List<Like> likes = new ArrayList<>();
-        for (Long idl : filmDbStorage.getLikesByFilm(resultSet.getLong("id"))) {
+        for (Long idl : likesDbStorage.getLikesByFilm(resultSet.getLong("id"))) {
             likes.add(new Like(userDbStorage.getUserById(idl)));
         }
         film.setLikes(likes);
+
         return film;
     }
 }
