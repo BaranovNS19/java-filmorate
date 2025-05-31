@@ -40,5 +40,11 @@ public class ErrorHandler {
         return new ErrorResponse("Некорректный запрос", e.getMessage());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ErrorResponse handleConfirmException(final ConfirmException e) {
+        return new ErrorResponse("Ошибка при подтверждении", e.getMessage());
+    }
+
 
 }
